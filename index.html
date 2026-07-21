@@ -200,13 +200,10 @@
   </div>
 
 <script>
-  // ⚠️ วาง Web App URL จาก Google Apps Script (ที่ลงท้ายด้วย /exec) ตรงนี้
+  // ⚠️ แก้ไข 3 จุดตรงนี้ก่อนกดบันทึก
   var WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbydGrdiiYveqHm3Uwkf09P6VsS_c7Fy9E6ooA1UN4CTcLfyY7DGzg85IsJ5i3cmkvkY/exec';
   
-  // -------------------------------------------------------------
-  // 📌 ลิงก์รูป QR Code (แก้ไขวางลิงก์รูปภาพของคุณได้ที่ 2 บรรทัดนี้)
-  // -------------------------------------------------------------
-  var QR_250_URL = 'https://cdn.phototourl.com/free/2026-07-21-6fcc5604-9f80-4de0-a53f-5e1bc11fda25.jpg'; 
+  var QR_250_URL = 'https://cdn.phototourl.com/free/2026-07-21-0d28dc9c-0847-4d8f-84d1-0fbc18e669fb.jpg'; 
   var QR_280_URL = 'https://cdn.phototourl.com/free/2026-07-21-ed611d6a-4efa-4295-af90-e2b712459b26.jpg';
   // -------------------------------------------------------------
 
@@ -236,18 +233,20 @@
     var vMajor = document.getElementById('major').value;
     var vSize = document.getElementById('size').value;
 
-    var orderPayload = {
-      name: vName,
-      studentId: vId,
-      major: vMajor,
-      size: vSize,
-      price: calculatedPrice,
-      slipBase64: compressedBase64
-    };
+    var formData = new URLSearchParams();
+    formData.append('name', vName);
+    formData.append('studentId', vId);
+    formData.append('major', vMajor);
+    formData.append('size', vSize);
+    formData.append('price', calculatedPrice);
+    formData.append('slipBase64', compressedBase64);
 
     fetch(WEB_APP_URL, {
       method: 'POST',
-      body: JSON.stringify(orderPayload)
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded'
+      },
+      body: formData.toString()
     })
     .then(function(response) { 
       return response.json(); 
@@ -272,7 +271,7 @@
       }
     })
     .catch(function(error) {
-      alert("ไม่สามารถส่งข้อมูลได้ กรุณาลองใหม่อีกครั้ง");
+      alert("ไม่สามารถส่งข้อมูลได้ กรุณาตรวจสอบการเชื่อมต่อแล้วลองใหม่อีกครั้ง");
       document.getElementById('loaderOverlay').style.display = 'none';
     });
 
@@ -334,6 +333,3 @@
 </script>
 </body>
 </html>
-
-
-
