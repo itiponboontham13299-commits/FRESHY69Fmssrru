@@ -200,9 +200,16 @@
   </div>
 
 <script>
-  // ⚠️ นำลิงก์ Web App URL จาก Google Apps Script (ที่ลงท้ายด้วย /exec) มาวางแทนที่ตรงนี้
-  var WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbxEtTrpu18XxT18QOAJmW2Oti0MgbAhqiYE2KpumLEJxwYNPRemN2VH0WWCY0_DnECu/exec';
+  // ⚠️ วาง Web App URL จาก Google Apps Script (ที่ลงท้ายด้วย /exec) ตรงนี้
+  var WEB_APP_URL = 'เอาลิงก์_WEB_APP_URL_มาวางตรงนี้';
   
+  // -------------------------------------------------------------
+  // 📌 ลิงก์รูป QR Code (แก้ไขวางลิงก์รูปภาพของคุณได้ที่ 2 บรรทัดนี้)
+  // -------------------------------------------------------------
+  var QR_250_URL = 'https://cdn.phototourl.com/free/2026-07-21-6fcc5604-9f80-4de0-a53f-5e1bc11fda25.jpg'; 
+  var QR_280_URL = 'https://cdn.phototourl.com/free/2026-07-21-ed611d6a-4efa-4295-af90-e2b712459b26.jpg';
+  // -------------------------------------------------------------
+
   var END_DATE = new Date(2026, 6, 31, 23, 59, 59);
 
   if (new Date() > END_DATE) {
@@ -282,10 +289,10 @@
     
     var qrImg = document.getElementById('qrImage');
     if (calculatedPrice === "250") {
-      qrImg.src = "https://cdn.phototourl.com/free/ใส่ลิงก์รูป_QR250_ของคุณที่นี่.jpg";
+      qrImg.src = QR_250_URL;
       qrImg.style.display = "block";
     } else if (calculatedPrice === "280") {
-      qrImg.src = "https://cdn.phototourl.com/free/ใส่ลิงก์รูป_QR280_ของคุณที่นี่.jpg";
+      qrImg.src = QR_280_URL;
       qrImg.style.display = "block";
     } else {
       qrImg.style.display = "none";
@@ -293,7 +300,6 @@
     document.getElementById('bankSection').style.display = 'block';
   }
 
-  // ย่อรูปสลิปให้เบาเหลือ 400px ส่งข้อมูลไวใน 1-2 วินาที
   function processImage(input) {
     var file = input.files[0];
     if (file) {
@@ -302,12 +308,12 @@
         var img = new Image();
         img.onload = function() {
           var canvas = document.createElement('canvas');
-          var w = 400;
-          var h = img.height * (400 / img.width);
+          var w = 300; 
+          var h = img.height * (300 / img.width);
           canvas.width = w; 
           canvas.height = h;
           canvas.getContext('2d').drawImage(img, 0, 0, w, h);
-          compressedBase64 = canvas.toDataURL('image/jpeg', 0.4);
+          compressedBase64 = canvas.toDataURL('image/jpeg', 0.3);
           document.getElementById('liveView').src = compressedBase64;
           document.getElementById('previewDiv').style.display = 'block';
         };
@@ -328,5 +334,6 @@
 </script>
 </body>
 </html>
+
 
 
