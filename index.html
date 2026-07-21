@@ -200,12 +200,10 @@
   </div>
 
 <script>
-  // ⚠️ แก้ไข 3 จุดตรงนี้ก่อนกดบันทึก
+  // ⚠️ แก้ไขข้อมูล 3 บรรทัดนี้
   var WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbydGrdiiYveqHm3Uwkf09P6VsS_c7Fy9E6ooA1UN4CTcLfyY7DGzg85IsJ5i3cmkvkY/exec';
-  
-  var QR_250_URL = 'https://cdn.phototourl.com/free/2026-07-21-0d28dc9c-0847-4d8f-84d1-0fbc18e669fb.jpg'; 
-  var QR_280_URL = 'https://cdn.phototourl.com/free/2026-07-21-ed611d6a-4efa-4295-af90-e2b712459b26.jpg';
-  // -------------------------------------------------------------
+  var QR_250_URL = 'https://cdn.phototourl.com/free/2026-07-21-a4499482-e820-4ebb-a06e-085dd867eb0a.jpg'; 
+  var QR_280_URL = 'https://cdn.phototourl.com/free/2026-07-21-8bd99643-8eb6-440d-b22b-81488894e522.jpg';
 
   var END_DATE = new Date(2026, 6, 31, 23, 59, 59);
 
@@ -220,12 +218,10 @@
 
   function handleSubmit(event) {
     if (event) event.preventDefault();
-
     if (new Date() > END_DATE) {
       showClosedUI(); 
       return false;
     }
-
     document.getElementById('loaderOverlay').style.display = 'flex';
     
     var vName = document.getElementById('name').value;
@@ -233,24 +229,24 @@
     var vMajor = document.getElementById('major').value;
     var vSize = document.getElementById('size').value;
 
-    var formData = new URLSearchParams();
-    formData.append('name', vName);
-    formData.append('studentId', vId);
-    formData.append('major', vMajor);
-    formData.append('size', vSize);
-    formData.append('price', calculatedPrice);
-    formData.append('slipBase64', compressedBase64);
+    var orderPayload = {
+      name: vName,
+      studentId: vId,
+      major: vMajor,
+      size: vSize,
+      price: calculatedPrice,
+      slipBase64: compressedBase64
+    };
 
+    // ใช้การส่งแบบข้อความ plain text เพื่อเลี่ยงการติดบล็อก CORS และถอดรหัส JSON ฝั่งเซิร์ฟเวอร์ได้รวดเร็วที่สุด
     fetch(WEB_APP_URL, {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/x-www-form-urlencoded'
+        'Content-Type': 'text/plain'
       },
-      body: formData.toString()
+      body: JSON.stringify(orderPayload)
     })
-    .then(function(response) { 
-      return response.json(); 
-    })
+    .then(function(response) { return response.json(); })
     .then(function(data) {
       if(data.status === "success") {
         document.getElementById('loaderOverlay').style.display = 'none';
@@ -271,7 +267,7 @@
       }
     })
     .catch(function(error) {
-      alert("ไม่สามารถส่งข้อมูลได้ กรุณาตรวจสอบการเชื่อมต่อแล้วลองใหม่อีกครั้ง");
+      alert("ไม่สามารถส่งข้อมูลได้ กรุณาลองใหม่อีกครั้ง");
       document.getElementById('loaderOverlay').style.display = 'none';
     });
 
@@ -299,6 +295,7 @@
     document.getElementById('bankSection').style.display = 'block';
   }
 
+  // จำกัดการบีบอัดรูปภาพให้เล็กและเบาที่สุด (ความกว้าง 250px คุณภาพ 0.2) ส่งข้อมูลผ่านเน็ตเสร็จในเสี้ยววินาที
   function processImage(input) {
     var file = input.files[0];
     if (file) {
@@ -307,12 +304,12 @@
         var img = new Image();
         img.onload = function() {
           var canvas = document.createElement('canvas');
-          var w = 300; 
-          var h = img.height * (300 / img.width);
+          var w = 250; 
+          var h = img.height * (250 / img.width);
           canvas.width = w; 
           canvas.height = h;
           canvas.getContext('2d').drawImage(img, 0, 0, w, h);
-          compressedBase64 = canvas.toDataURL('image/jpeg', 0.3);
+          compressedBase64 = canvas.toDataURL('image/jpeg', 0.2);
           document.getElementById('liveView').src = compressedBase64;
           document.getElementById('previewDiv').style.display = 'block';
         };
@@ -333,3 +330,4 @@
 </script>
 </body>
 </html>
+
