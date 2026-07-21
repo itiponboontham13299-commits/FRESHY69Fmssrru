@@ -200,10 +200,9 @@
   </div>
 
 <script>
-  // ⚠️ ข้อสำคัญ: นำลิงก์ Web App URL จาก Google Apps Script (ที่ลงท้ายด้วย /exec) มาวางแทนที่ตรงนี้
-  var WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbxrthdgqPdMQotFq87WF4QaDVfaGxnbNF9ouLrB1ZWAFcr9bRqxZURVZa2hhOVx6STr/exec';
+  // ⚠️ นำลิงก์ Web App URL จาก Google Apps Script (ที่ลงท้ายด้วย /exec) มาวางแทนที่ตรงนี้
+  var WEB_APP_URL = 'เอาลิงก์_WEB_APP_URL_มาวางตรงนี้';
   
-  // ตั้งเวลาปิดฟอร์ม (ปี, เดือน-1, วัน, ช.ม., นาที, วินาที)
   var END_DATE = new Date(2026, 6, 31, 23, 59, 59);
 
   if (new Date() > END_DATE) {
@@ -239,7 +238,6 @@
       slipBase64: compressedBase64
     };
 
-    // ส่งข้อมูลแบบดึงข้ามโดเมนจาก GitHub ไปหา Google Sheets
     fetch(WEB_APP_URL, {
       method: 'POST',
       body: JSON.stringify(orderPayload)
@@ -262,12 +260,12 @@
         
         document.getElementById('receiptSection').style.display = 'block';
       } else {
-        alert("เกิดข้อผิดพลาดจากระบบ: " + data.message);
+        alert("เกิดข้อผิดพลาด: " + data.message);
         document.getElementById('loaderOverlay').style.display = 'none';
       }
     })
     .catch(function(error) {
-      alert("ไม่สามารถส่งข้อมูลได้ กรุณาตรวจสอบการเชื่อมต่อแล้วลองใหม่อีกครั้ง");
+      alert("ไม่สามารถส่งข้อมูลได้ กรุณาลองใหม่อีกครั้ง");
       document.getElementById('loaderOverlay').style.display = 'none';
     });
 
@@ -295,6 +293,7 @@
     document.getElementById('bankSection').style.display = 'block';
   }
 
+  // ย่อรูปสลิปให้เบาเหลือ 400px ส่งข้อมูลไวใน 1-2 วินาที
   function processImage(input) {
     var file = input.files[0];
     if (file) {
@@ -303,12 +302,12 @@
         var img = new Image();
         img.onload = function() {
           var canvas = document.createElement('canvas');
-          var w = 500;
-          var h = img.height * (500 / img.width);
+          var w = 400;
+          var h = img.height * (400 / img.width);
           canvas.width = w; 
           canvas.height = h;
           canvas.getContext('2d').drawImage(img, 0, 0, w, h);
-          compressedBase64 = canvas.toDataURL('image/jpeg', 0.6);
+          compressedBase64 = canvas.toDataURL('image/jpeg', 0.4);
           document.getElementById('liveView').src = compressedBase64;
           document.getElementById('previewDiv').style.display = 'block';
         };
@@ -329,3 +328,5 @@
 </script>
 </body>
 </html>
+
+
