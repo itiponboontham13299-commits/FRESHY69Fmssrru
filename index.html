@@ -107,7 +107,19 @@
         </div>
 
         <div class="mb-3">
-          <label class="form-label">3. สาขาวิชา</label>
+          <label class="form-label">3. ชั้นปี / สถานะบุคคล</label>
+          <select id="yearLevel" class="form-select" required>
+            <option value="" disabled selected>-- เลือกชั้นปี / สถานะ --</option>
+            <option value="ชั้นปี 1">ชั้นปี 1</option>
+            <option value="ชั้นปี 2">ชั้นปี 2</option>
+            <option value="ชั้นปี 3">ชั้นปี 3</option>
+            <option value="ชั้นปี 4">ชั้นปี 4</option>
+            <option value="บุคลากร">บุคลากร</option>
+          </select>
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label">4. สาขาวิชา</label>
           <select id="major" class="form-select" required>
             <option value="" disabled selected>-- เลือกสาขาวิชา --</option>
             <option>สาขาการจัดการโลจิสติกส์และซัพพลายเชน</option>
@@ -122,7 +134,7 @@
         </div>
 
         <div class="mb-3">
-          <label class="form-label">4. ขนาดไซส์เสื้อ</label>
+          <label class="form-label">5. ขนาดไซส์เสื้อ</label>
           <select id="size" class="form-select" required onchange="handleSizeSelect()">
             <option value="" disabled selected>-- เลือกขนาดไซส์เสื้อ --</option>
             <option value="S (รอบอก 36 นิ้ว)" data-p="250">S (รอบอก 36 นิ้ว) - 250 บาท</option>
@@ -145,7 +157,7 @@
         </div>
 
         <div class="mb-3 mt-4">
-          <label class="form-label">5. แนบหลักฐานการโอนเงิน (สลิป)</label>
+          <label class="form-label">6. แนบหลักฐานการโอนเงิน (สลิป)</label>
           <input type="file" id="slipInput" class="form-control" accept="image/*" required onchange="processImage(this)">
           <div id="previewDiv" class="mt-3 text-center" style="display:none;">
             <img id="liveView" style="max-width: 150px; border-radius: 8px; border: 1px solid #ddd;">
@@ -177,6 +189,10 @@
           <span class="receipt-value" id="rcpName">-</span>
         </div>
         <div class="receipt-row">
+          <span class="receipt-label">ชั้นปี / สถานะ</span>
+          <span class="receipt-value text-dark" id="rcpYearLevel">-</span>
+        </div>
+        <div class="receipt-row">
           <span class="receipt-label">สาขาวิชา</span>
           <span class="receipt-value" id="rcpMajor">-</span>
         </div>
@@ -200,7 +216,6 @@
   </div>
 
 <script>
-  // ⚠️ แก้ไขข้อมูล 3 บรรทัดนี้
   var WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbydGrdiiYveqHm3Uwkf09P6VsS_c7Fy9E6ooA1UN4CTcLfyY7DGzg85IsJ5i3cmkvkY/exec';
   var QR_250_URL = 'https://cdn.phototourl.com/free/2026-07-21-a4499482-e820-4ebb-a06e-085dd867eb0a.jpg'; 
   var QR_280_URL = 'https://cdn.phototourl.com/free/2026-07-21-8bd99643-8eb6-440d-b22b-81488894e522.jpg';
@@ -226,19 +241,20 @@
     
     var vName = document.getElementById('name').value;
     var vId = document.getElementById('studentId').value;
+    var vYearLevel = document.getElementById('yearLevel').value; // 📌 ดึงค่าชั้นปี
     var vMajor = document.getElementById('major').value;
     var vSize = document.getElementById('size').value;
 
     var orderPayload = {
       name: vName,
       studentId: vId,
+      yearLevel: vYearLevel, // 📌 ส่งค่าชั้นปีไป Apps Script
       major: vMajor,
       size: vSize,
       price: calculatedPrice,
       slipBase64: compressedBase64
     };
 
-    // ใช้การส่งแบบข้อความ plain text เพื่อเลี่ยงการติดบล็อก CORS และถอดรหัส JSON ฝั่งเซิร์ฟเวอร์ได้รวดเร็วที่สุด
     fetch(WEB_APP_URL, {
       method: 'POST',
       headers: {
@@ -256,6 +272,7 @@
         document.getElementById('rcpNo').innerText = vId; 
         document.getElementById('rcpDateTime').innerText = now.toLocaleDateString('th-TH') + ' ' + now.toLocaleTimeString('th-TH');
         document.getElementById('rcpName').innerText = vName;
+        document.getElementById('rcpYearLevel').innerText = vYearLevel; // 📌 มัดจำแสดงผลบนใบเสร็จ
         document.getElementById('rcpMajor').innerText = vMajor;
         document.getElementById('rcpSize').innerText = vSize;
         document.getElementById('rcpPrice').innerText = calculatedPrice;
@@ -295,7 +312,6 @@
     document.getElementById('bankSection').style.display = 'block';
   }
 
-  // จำกัดการบีบอัดรูปภาพให้เล็กและเบาที่สุด (ความกว้าง 250px คุณภาพ 0.2) ส่งข้อมูลผ่านเน็ตเสร็จในเสี้ยววินาที
   function processImage(input) {
     var file = input.files[0];
     if (file) {
@@ -330,4 +346,3 @@
 </script>
 </body>
 </html>
-
