@@ -31,8 +31,13 @@
     .form-title { font-weight: 700; font-size: 24px; border-left: 6px solid var(--primary-red); padding-left: 15px; margin-bottom: 30px; }
 
     .form-label { font-weight: 600; font-size: 16px; margin-bottom: 8px; color: #444; }
-    .form-control, .form-select { font-size: 16px; padding: 15px; border-radius: 12px; border: 1px solid #ccc; background-color: #fafafa; }
+    .form-control, .form-select { font-size: 16px; padding: 15px; border-radius: 12px; border: 1px solid #ccc; background-color: #fafafa; transition: all 0.3s ease; }
     .form-control:focus, .form-select:focus { border-color: var(--primary-red); box-shadow: 0 0 0 3px rgba(168, 30, 35, 0.15); background-color: white; }
+
+    /* ตกแต่งกรอบแจ้งเตือนเมื่อรหัสซ้ำ */
+    .input-error { border-color: #dc3545 !important; background-color: #fff8f8 !important; box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.15) !important; }
+    @keyframes fadeInDown { from { opacity: 0; transform: translateY(-5px); } to { opacity: 1; transform: translateY(0); } }
+    .error-box { display: none; font-size: 14px; font-weight: 500; color: #842029; background-color: #f8d7da; border: 1px solid #f5c2c7; border-radius: 8px; padding: 10px 15px; margin-top: 10px; animation: fadeInDown 0.3s ease-out; }
 
     .payment-box { background: #fffcfc; border: 2px dashed var(--primary-red); border-radius: 16px; padding: 25px; margin-top: 20px; text-align: center; display: none; }
     .btn-submit { width: 100%; background: var(--primary-red); color: white; border: none; padding: 18px; border-radius: 12px; font-size: 20px; font-weight: 700; margin-top: 25px; transition: 0.3s; }
@@ -43,6 +48,10 @@
     .receipt-body { padding: 30px; position: relative; }
     .receipt-row { display: flex; justify-content: space-between; margin-bottom: 15px; font-size: 16px; border-bottom: 1px dashed #eee; padding-bottom: 10px; }
     .btn-download { background: #4b5563; color: white; width: 100%; padding: 16px; border: none; border-radius: 10px; font-size: 18px; font-weight: 600; }
+
+    /* ปุ่มตรวจสอบรายชื่อ */
+    .btn-check-name { display: block; width: 100%; background: white; color: var(--primary-red); border: 2px solid var(--primary-red); padding: 14px; border-radius: 10px; font-size: 18px; font-weight: 600; text-align: center; text-decoration: none; margin-top: 12px; transition: 0.3s; }
+    .btn-check-name:hover { background: var(--primary-red); color: white; }
 
     #loaderOverlay { display: none; position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.8); z-index: 9999; justify-content: center; align-items: center; color: white; flex-direction: column; }
     
@@ -103,7 +112,10 @@
         
         <div class="mb-3">
           <label class="form-label">2. รหัสนักศึกษา / รหัสประจำตัว</label>
-          <input type="text" id="studentId" class="form-control" placeholder="กรอกรหัสประจำตัว (เช่น 69xxxxxxxx)" required>
+          <input type="text" id="studentId" class="form-control" placeholder="กรอกรหัสประจำตัว (เช่น 69xxxxxxxx)" required oninput="clearIdError()">
+          <div id="idErrorText" class="error-box">
+            <i class="fa-solid fa-circle-exclamation me-1"></i> <span></span>
+          </div>
         </div>
 
         <div class="mb-3">
@@ -210,8 +222,14 @@
         </div>
       </div>
     </div>
+    
     <div class="p-3" style="background: #f8f9fa;">
       <button type="button" class="btn-download" onclick="downloadReceipt()"><i class="fa-solid fa-download me-2"></i> บันทึกใบเสร็จ</button>
+      
+      <!-- ปุ่มตรวจสอบรายชื่อ ลิงก์ไปยัง Google Sheet ของคุณ -->
+      <a href="https://docs.google.com/spreadsheets/d/1qgn9mIOq2R9uee3a6PKlm040C54g9SLo5nmkXUdBOxI/edit?usp=sharing" target="_blank" class="btn-check-name">
+        <i class="fa-solid fa-list-check me-2"></i> ตรวจสอบรายชื่อ
+      </a>
     </div>
   </div>
 
@@ -231,24 +249,33 @@
     document.getElementById('closedMessage').style.display = 'block';
   }
 
+  function clearIdError() {
+    var idInput = document.getElementById('studentId');
+    var errorText = document.getElementById('idErrorText');
+    idInput.classList.remove('input-error');
+    errorText.style.display = 'none';
+  }
+
   function handleSubmit(event) {
     if (event) event.preventDefault();
     if (new Date() > END_DATE) {
       showClosedUI(); 
       return false;
     }
+    
+    clearIdError();
     document.getElementById('loaderOverlay').style.display = 'flex';
     
     var vName = document.getElementById('name').value;
     var vId = document.getElementById('studentId').value;
-    var vYearLevel = document.getElementById('yearLevel').value; // 📌 ดึงค่าชั้นปี
+    var vYearLevel = document.getElementById('yearLevel').value;
     var vMajor = document.getElementById('major').value;
     var vSize = document.getElementById('size').value;
 
     var orderPayload = {
       name: vName,
       studentId: vId,
-      yearLevel: vYearLevel, // 📌 ส่งค่าชั้นปีไป Apps Script
+      yearLevel: vYearLevel,
       major: vMajor,
       size: vSize,
       price: calculatedPrice,
@@ -272,15 +299,27 @@
         document.getElementById('rcpNo').innerText = vId; 
         document.getElementById('rcpDateTime').innerText = now.toLocaleDateString('th-TH') + ' ' + now.toLocaleTimeString('th-TH');
         document.getElementById('rcpName').innerText = vName;
-        document.getElementById('rcpYearLevel').innerText = vYearLevel; // 📌 มัดจำแสดงผลบนใบเสร็จ
+        document.getElementById('rcpYearLevel').innerText = vYearLevel;
         document.getElementById('rcpMajor').innerText = vMajor;
         document.getElementById('rcpSize').innerText = vSize;
         document.getElementById('rcpPrice').innerText = calculatedPrice;
         
         document.getElementById('receiptSection').style.display = 'block';
       } else {
-        alert("เกิดข้อผิดพลาด: " + data.message);
         document.getElementById('loaderOverlay').style.display = 'none';
+        
+        if (data.message === "รหัสนักศึกษานี้ทำการจองไปแล้ว") {
+          var idInput = document.getElementById('studentId');
+          var errorText = document.getElementById('idErrorText');
+          idInput.classList.add('input-error');
+          errorText.querySelector('span').innerText = data.message;
+          errorText.style.display = 'block';
+          
+          idInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          idInput.focus();
+        } else {
+          alert(data.message);
+        }
       }
     })
     .catch(function(error) {
