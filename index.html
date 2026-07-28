@@ -308,7 +308,7 @@
       } else {
         document.getElementById('loaderOverlay').style.display = 'none';
         
-        if (data.message === "รหัสนักศึกษานี้ทำการจองไปแล้ว") {
+        if (data.message === "รหัสนักศึกษานี้ทำการจองไปแล้ว หากต้องการจองเพิ่มกรุณาวงเล็บหลังรหัส เช่น 69123456789(2)") {
           var idInput = document.getElementById('studentId');
           var errorText = document.getElementById('idErrorText');
           idInput.classList.add('input-error');
